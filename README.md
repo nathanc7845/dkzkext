@@ -28,6 +28,7 @@ DkzKext é uma kernel extension baseada no framework [Lilu](https://github.com/a
 | macOS Ventura (13.x) | 🔬 Experimental |
 | macOS Sonoma (14.x) | 🔬 Experimental |
 | macOS Sequoia (15.x) | 🔬 Experimental |
+| macOS Tahoe (26.x) | 🔬 Experimental |
 
 ## 🔧 Como Funciona
 

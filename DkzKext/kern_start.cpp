@@ -37,7 +37,7 @@ PluginConfiguration ADDPR(config) {
     nullptr,                            // No minimum kernel version
     nullptr,                            // No maximum kernel version
     KernelVersion::Ventura,             // Min: macOS 13.0 Ventura
-    KernelVersion::Sequoia,             // Max: macOS 15.x Sequoia
+    KernelVersion::Tahoe,               // Max: macOS 26.x Tahoe
     []() {
         DkzKext::callback.init();
     }
