@@ -46,4 +46,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: DkzKext-Release
-        path: DkzKext/build/package/*.zip
+        path: DkzKext/build/*.zip
