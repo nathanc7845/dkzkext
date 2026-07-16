@@ -31,6 +31,7 @@ jobs:
 
     - name: Build Lilu
       run: |
+        cp -R MacKernelSDK Lilu/MacKernelSDK
         cd Lilu
         xcodebuild -configuration Release
 
