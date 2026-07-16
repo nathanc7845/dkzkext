@@ -38,6 +38,7 @@ KEXT_SDK        = -isysroot $(shell xcrun --sdk macosx --show-sdk-path)
 # =============================================================================
 
 COMMON_CXXFLAGS = \
+    -arch x86_64 \
     -std=c++17 \
     -fno-rtti \
     -fno-exceptions \
@@ -59,6 +60,7 @@ DEBUG_CXXFLAGS   = $(COMMON_CXXFLAGS) -DDEBUG -O0 -g
 RELEASE_CXXFLAGS = $(COMMON_CXXFLAGS) -O2 -DNDEBUG
 
 LDFLAGS = \
+    -arch x86_64 \
     -mkernel \
     -nostdlib \
     -Xlinker -kext \
