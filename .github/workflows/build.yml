@@ -1,0 +1,48 @@
+name: Build DkzKext
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout DkzKext
+      uses: actions/checkout@v4
+      with:
+        path: DkzKext
+
+    - name: Checkout Lilu
+      uses: actions/checkout@v4
+      with:
+        repository: acidanthera/Lilu
+        path: Lilu
+
+    - name: Checkout MacKernelSDK
+      uses: actions/checkout@v4
+      with:
+        repository: acidanthera/MacKernelSDK
+        path: MacKernelSDK
+
+    - name: Build Lilu
+      run: |
+        cd Lilu
+        xcodebuild -configuration Release
+
+    - name: Build DkzKext
+      run: |
+        cd DkzKext
+        export LILU_PATH=../Lilu
+        export MACKERNELSDK_PATH=../MacKernelSDK
+        make package
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DkzKext-Release
+        path: DkzKext/build/package/*.zip

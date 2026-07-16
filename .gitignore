@@ -1,0 +1,6 @@
+.DS_Store
+build/
+*.o
+*.zip
+*.kext
+xcuserdata/
