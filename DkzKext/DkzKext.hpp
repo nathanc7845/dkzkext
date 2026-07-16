@@ -183,10 +183,10 @@ private:
         KextAMDSupport      = 3,
     };
 
-    static const char *kextPathX6000[];
-    static const char *kextPathX6000FB[];
-    static const char *kextPathX6000HW[];
-    static const char *kextPathAMDSupport[];
+    static const char *kextPathX6000[1];
+    static const char *kextPathX6000FB[1];
+    static const char *kextPathX6000HW[1];
+    static const char *kextPathAMDSupport[1];
 
     KernelPatcher::KextInfo kextList[kKextCount] = {
         {"com.apple.kext.AMDRadeonX6000",
