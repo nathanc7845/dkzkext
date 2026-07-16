@@ -79,8 +79,12 @@ void DkzKextController::init() {
         DKZLOG("Device ID spoofing disabled via -dkznospoof");
     }
 
-    // Register Lilu callbacks
-    auto &api = lilu.onDeviceInfoAvailable(onDeviceInfo, this);
+    // Retrieve device info manually
+    DeviceInfo *info = DeviceInfo::create();
+    if (info) {
+        onDeviceInfo(this, info);
+        DeviceInfo::deleter(info);
+    }
 
     // Register kexts to monitor for patching
     lilu.onKextLoadForce(kextList, kKextCount, onKextLoad, this);
@@ -102,7 +106,7 @@ void DkzKextController::deinit() {
 // =============================================================================
 
 void DkzKextController::onDeviceInfo(void *user, DeviceInfo *info) {
-    auto *self = static_cast<DkzKext*>(user);
+    auto *self = static_cast<DkzKextController*>(user);
     DKZLOG("Device info available. Scanning for RDNA 3 GPU...");
 
     if (!self->detectGPU(info)) {
@@ -296,7 +300,7 @@ void DkzKextController::injectDeviceProperties() {
 
 void DkzKextController::onKextLoad(void *user, KernelPatcher &patcher, size_t index,
                           mach_vm_address_t address, size_t size) {
-    auto *self = static_cast<DkzKext*>(user);
+    auto *self = static_cast<DkzKextController*>(user);
 
     if (!self->initialized || self->chipFamily == ChipFamilyUnknown) {
         return;
