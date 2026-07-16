@@ -49,7 +49,7 @@ COMMON_CXXFLAGS = \
     -DAPPLE \
     -DNeXT \
     -DPRODUCT_NAME=$(PRODUCT_NAME) \
-    -I$(LILU_PATH) \
+    -I$(LILU_PATH)/Lilu \
     -I$(MACKERNELSDK_PATH)/Headers \
     -I./Headers \
     -I./DkzKext \
