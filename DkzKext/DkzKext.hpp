@@ -23,10 +23,10 @@ class DkzPowerPlay;
 // DkzKext — Main Controller Class
 // =============================================================================
 
-class DkzKext {
+class DkzKextController {
 public:
     // Singleton callback instance
-    static DkzKext callback;
+    static DkzKextController callback;
 
     /**
      * Initialize the kext — register Lilu callbacks.

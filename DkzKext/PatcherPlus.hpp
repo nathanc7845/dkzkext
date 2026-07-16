@@ -10,6 +10,7 @@
 #include <Headers/kern_api.hpp>
 #include <Headers/kern_util.hpp>
 #include <Headers/kern_patcher.hpp>
+#include "../Headers/kern_util.hpp"
 
 // =============================================================================
 // Route Request Helper — Simplified function routing
@@ -128,9 +129,7 @@ public:
                 addr = patcher.solveSymbol(index, req.fallbackSymbol);
             }
             if (addr) {
-                *req.address = reinterpret_cast<void*>(
-                    reinterpret_cast<uintptr_t>(addr) + req.offset
-                );
+                *req.address = reinterpret_cast<void*>(addr + req.offset);
                 DKZDBG("Resolved symbol: %s at %p (+0x%lx)",
                        req.symbol, addr, req.offset);
             } else {
@@ -167,17 +166,32 @@ public:
                 continue;
             }
 
-            KernelPatcher::RouteRequest route(
-                req.symbol,
-                req.replacement,
-                req.original ? *static_cast<mach_vm_address_t*>(req.original) : 0
-            );
-            if (!patcher.routeMultiple(index, &route, 1)) {
-                if (req.required) {
-                    DKZERR("Failed to route required symbol: %s", req.symbol);
-                    allRouted = false;
-                } else {
-                    DKZWARN("Failed to route optional symbol: %s", req.symbol);
+            if (req.original) {
+                KernelPatcher::RouteRequest route(
+                    req.symbol,
+                    req.replacement,
+                    *static_cast<mach_vm_address_t*>(req.original)
+                );
+                if (!patcher.routeMultiple(index, &route, 1)) {
+                    if (req.required) {
+                        DKZERR("Failed to route required symbol: %s", req.symbol);
+                        allRouted = false;
+                    } else {
+                        DKZWARN("Failed to route optional symbol: %s", req.symbol);
+                    }
+                }
+            } else {
+                KernelPatcher::RouteRequest route(
+                    req.symbol,
+                    req.replacement
+                );
+                if (!patcher.routeMultiple(index, &route, 1)) {
+                    if (req.required) {
+                        DKZERR("Failed to route required symbol: %s", req.symbol);
+                        allRouted = false;
+                    } else {
+                        DKZWARN("Failed to route optional symbol: %s", req.symbol);
+                    }
                 }
             } else {
                 DKZDBG("Successfully routed: %s", req.symbol);

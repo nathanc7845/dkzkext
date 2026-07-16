@@ -14,11 +14,11 @@
 static const char *kextVersion = "1.0.0";
 
 // Boot arguments to control DkzKext behavior
-static const char *bootargOff     = "-dkzoff";      // Disable DkzKext entirely
-static const char *bootargDebug   = "-dkzdbg";      // Enable debug logging
-static const char *bootargBeta    = "-dkzbeta";      // Enable beta features
-static const char *bootargNoSpoof = "-dkznospoof";   // Disable Device ID spoofing
-static const char *bootargDump    = "-dkzdump";      // Dump GPU register state
+static const char *bootargOff[]     = { "-dkzoff" };      // Disable DkzKext entirely
+static const char *bootargDebug[]   = { "-dkzdbg" };      // Enable debug logging
+static const char *bootargBeta[]    = { "-dkzbeta" };     // Enable beta features
+static const char *bootargNoSpoof[] = { "-dkznospoof" };  // Disable Device ID spoofing
+static const char *bootargDump[]    = { "-dkzdump" };     // Dump GPU register state
 
 // =============================================================================
 // Plugin Definition
@@ -34,11 +34,11 @@ PluginConfiguration ADDPR(config) {
     arrsize(bootargOff),
     bootargDebug,                       // Boot arg for debug
     arrsize(bootargDebug),
-    nullptr,                            // No minimum kernel version
-    nullptr,                            // No maximum kernel version
+    bootargBeta,                        // Boot arg for beta
+    arrsize(bootargBeta),
     KernelVersion::Ventura,             // Min: macOS 13.0 Ventura
     KernelVersion::Tahoe,               // Max: macOS 26.x Tahoe
     []() {
-        DkzKext::callback.init();
+        DkzKextController::callback.init();
     }
 };

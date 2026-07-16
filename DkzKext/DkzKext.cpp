@@ -16,32 +16,32 @@
 // Static Singleton & Original Function Pointers
 // =============================================================================
 
-DkzKext DkzKext::callback;
+DkzKext DkzKextController::callback;
 
 // AMDRadeonX6000
-bool     (*DkzKext::origAcceleratorStart)(void*, IOService*) = nullptr;
-void*    (*DkzKext::origCreateAccelChannels)(void*, bool) = nullptr;
-uint64_t (*DkzKext::origGetHWInfo)(void*, uint32_t) = nullptr;
+bool     (*DkzKextController::origAcceleratorStart)(void*, IOService*) = nullptr;
+void*    (*DkzKextController::origCreateAccelChannels)(void*, bool) = nullptr;
+uint64_t (*DkzKextController::origGetHWInfo)(void*, uint32_t) = nullptr;
 
 // AMDRadeonX6000Framebuffer
-bool     (*DkzKext::origFBStart)(void*, IOService*) = nullptr;
-void     (*DkzKext::origFBSetupConnectors)(void*) = nullptr;
-uint32_t (*DkzKext::origFBGetConnectorCount)(void*) = nullptr;
+bool     (*DkzKextController::origFBStart)(void*, IOService*) = nullptr;
+void     (*DkzKextController::origFBSetupConnectors)(void*) = nullptr;
+uint32_t (*DkzKextController::origFBGetConnectorCount)(void*) = nullptr;
 
 // AMDRadeonX6000HWServices
-bool     (*DkzKext::origHWServicesStart)(void*, IOService*) = nullptr;
-void*    (*DkzKext::origGetHWLibsModule)(void*) = nullptr;
-bool     (*DkzKext::origInitHWLibs)(void*, void*) = nullptr;
+bool     (*DkzKextController::origHWServicesStart)(void*, IOService*) = nullptr;
+void*    (*DkzKextController::origGetHWLibsModule)(void*) = nullptr;
+bool     (*DkzKextController::origInitHWLibs)(void*, void*) = nullptr;
 
 // AMDSupport
-const char* (*DkzKext::origGetModelName)(void*) = nullptr;
-uint32_t    (*DkzKext::origGetDeviceId)(void*) = nullptr;
+const char* (*DkzKextController::origGetModelName)(void*) = nullptr;
+uint32_t    (*DkzKextController::origGetDeviceId)(void*) = nullptr;
 
 // =============================================================================
 // Initialization
 // =============================================================================
 
-void DkzKext::init() {
+void DkzKextController::init() {
     DKZLOG("DkzKext v1.0.0 — AMD Radeon RX 7000 (RDNA 3) Support");
     DKZLOG("Initializing...");
 
@@ -76,7 +76,7 @@ void DkzKext::init() {
     DKZLOG("Initialization complete. Waiting for device enumeration...");
 }
 
-void DkzKext::deinit() {
+void DkzKextController::deinit() {
     DKZLOG("Deinitializing DkzKext...");
     // Cleanup sub-modules
     if (framebuffer) { delete framebuffer; framebuffer = nullptr; }
@@ -88,7 +88,7 @@ void DkzKext::deinit() {
 // Device Info Callback — GPU Detection
 // =============================================================================
 
-void DkzKext::onDeviceInfo(void *user, DeviceInfo *info) {
+void DkzKextController::onDeviceInfo(void *user, DeviceInfo *info) {
     auto *self = static_cast<DkzKext*>(user);
     DKZLOG("Device info available. Scanning for RDNA 3 GPU...");
 
@@ -121,7 +121,7 @@ void DkzKext::onDeviceInfo(void *user, DeviceInfo *info) {
 // GPU Detection
 // =============================================================================
 
-bool DkzKext::detectGPU(DeviceInfo *info) {
+bool DkzKextController::detectGPU(DeviceInfo *info) {
     if (!info || !info->videoBuiltin) {
         DKZDBG("No video device info available");
     }
@@ -189,7 +189,7 @@ bool DkzKext::detectGPU(DeviceInfo *info) {
 // Device ID Spoofing
 // =============================================================================
 
-void DkzKext::setupDeviceIdSpoof() {
+void DkzKextController::setupDeviceIdSpoof() {
     if (!gpuDevice || spoofDeviceId == 0) {
         DKZERR("Cannot setup spoof: no GPU device or spoof ID is 0");
         return;
@@ -226,7 +226,7 @@ void DkzKext::setupDeviceIdSpoof() {
 // Device Property Injection
 // =============================================================================
 
-void DkzKext::injectDeviceProperties() {
+void DkzKextController::injectDeviceProperties() {
     if (!gpuDevice) return;
 
     DKZLOG("Injecting device properties...");
@@ -281,7 +281,7 @@ void DkzKext::injectDeviceProperties() {
 // Kext Load Callback — Apply Patches
 // =============================================================================
 
-void DkzKext::onKextLoad(void *user, KernelPatcher &patcher, size_t index,
+void DkzKextController::onKextLoad(void *user, KernelPatcher &patcher, size_t index,
                           mach_vm_address_t address, size_t size) {
     auto *self = static_cast<DkzKext*>(user);
 
@@ -313,7 +313,7 @@ void DkzKext::onKextLoad(void *user, KernelPatcher &patcher, size_t index,
 // AMDRadeonX6000 Patches — Main Accelerator Driver
 // =============================================================================
 
-void DkzKext::patchX6000(KernelPatcher &patcher, size_t index,
+void DkzKextController::patchX6000(KernelPatcher &patcher, size_t index,
                           mach_vm_address_t address, size_t size) {
     // Route accelerator start to inject our Device ID
     KernelPatcher::RouteRequest routes[] = {
@@ -388,7 +388,7 @@ void DkzKext::patchX6000(KernelPatcher &patcher, size_t index,
 // AMDRadeonX6000Framebuffer Patches
 // =============================================================================
 
-void DkzKext::patchX6000Framebuffer(KernelPatcher &patcher, size_t index,
+void DkzKextController::patchX6000Framebuffer(KernelPatcher &patcher, size_t index,
                                      mach_vm_address_t address, size_t size) {
     KernelPatcher::RouteRequest routes[] = {
         {"__ZN35AMDRadeonX6000_AtiAtomBiosDCE125startEP9IOService",
@@ -423,7 +423,7 @@ void DkzKext::patchX6000Framebuffer(KernelPatcher &patcher, size_t index,
 // AMDRadeonX6000HWServices Patches
 // =============================================================================
 
-void DkzKext::patchX6000HWServices(KernelPatcher &patcher, size_t index,
+void DkzKextController::patchX6000HWServices(KernelPatcher &patcher, size_t index,
                                     mach_vm_address_t address, size_t size) {
     KernelPatcher::RouteRequest routes[] = {
         {"__ZN38AMDRadeonX6000_AMDRadeonHWServicesNavi5startEP9IOService",
@@ -457,7 +457,7 @@ void DkzKext::patchX6000HWServices(KernelPatcher &patcher, size_t index,
 // AMDSupport Patches
 // =============================================================================
 
-void DkzKext::patchAMDSupport(KernelPatcher &patcher, size_t index,
+void DkzKextController::patchAMDSupport(KernelPatcher &patcher, size_t index,
                                mach_vm_address_t address, size_t size) {
     KernelPatcher::RouteRequest routes[] = {
         {"__ZN13ATIController12getModelNameEv",
@@ -483,7 +483,7 @@ void DkzKext::patchAMDSupport(KernelPatcher &patcher, size_t index,
 
 // --- AMDRadeonX6000 Hooks ---
 
-bool DkzKext::wrapAcceleratorStart(void *that, IOService *provider) {
+bool DkzKextController::wrapAcceleratorStart(void *that, IOService *provider) {
     DKZLOG("AMDAccelDevice::start intercepted");
 
     auto &self = callback;
@@ -510,12 +510,12 @@ bool DkzKext::wrapAcceleratorStart(void *that, IOService *provider) {
     return result;
 }
 
-void* DkzKext::wrapCreateAccelChannels(void *that, bool param1) {
+void* DkzKextController::wrapCreateAccelChannels(void *that, bool param1) {
     DKZDBG("createAccelChannels called (param1=%d)", param1);
     return origCreateAccelChannels(that, param1);
 }
 
-uint64_t DkzKext::wrapGetHWInfo(void *that, uint32_t param1) {
+uint64_t DkzKextController::wrapGetHWInfo(void *that, uint32_t param1) {
     DKZDBG("getHWInfo called (param1=0x%X)", param1);
 
     uint64_t result = origGetHWInfo(that, param1);
@@ -544,7 +544,7 @@ uint64_t DkzKext::wrapGetHWInfo(void *that, uint32_t param1) {
 
 // --- AMDRadeonX6000Framebuffer Hooks ---
 
-bool DkzKext::wrapFBStart(void *that, IOService *provider) {
+bool DkzKextController::wrapFBStart(void *that, IOService *provider) {
     DKZLOG("Framebuffer::start intercepted");
 
     auto &self = callback;
@@ -565,7 +565,7 @@ bool DkzKext::wrapFBStart(void *that, IOService *provider) {
     return result;
 }
 
-void DkzKext::wrapFBSetupConnectors(void *that) {
+void DkzKextController::wrapFBSetupConnectors(void *that) {
     DKZLOG("Framebuffer::setupConnectors intercepted");
 
     auto &self = callback;
@@ -579,7 +579,7 @@ void DkzKext::wrapFBSetupConnectors(void *that) {
     }
 }
 
-uint32_t DkzKext::wrapFBGetConnectorCount(void *that) {
+uint32_t DkzKextController::wrapFBGetConnectorCount(void *that) {
     auto &self = callback;
 
     // Return our connector count if we have framebuffer data
@@ -596,7 +596,7 @@ uint32_t DkzKext::wrapFBGetConnectorCount(void *that) {
 
 // --- AMDRadeonX6000HWServices Hooks ---
 
-bool DkzKext::wrapHWServicesStart(void *that, IOService *provider) {
+bool DkzKextController::wrapHWServicesStart(void *that, IOService *provider) {
     DKZLOG("HWServices::start intercepted");
 
     bool result = origHWServicesStart(that, provider);
@@ -610,7 +610,7 @@ bool DkzKext::wrapHWServicesStart(void *that, IOService *provider) {
     return result;
 }
 
-void* DkzKext::wrapGetHWLibsModule(void *that) {
+void* DkzKextController::wrapGetHWLibsModule(void *that) {
     DKZLOG("getHWLibsModule intercepted");
 
     auto &self = callback;
@@ -631,7 +631,7 @@ void* DkzKext::wrapGetHWLibsModule(void *that) {
     return result;
 }
 
-bool DkzKext::wrapInitHWLibs(void *that, void *param1) {
+bool DkzKextController::wrapInitHWLibs(void *that, void *param1) {
     DKZLOG("initHWLibs intercepted");
 
     auto &self = callback;
@@ -658,7 +658,7 @@ bool DkzKext::wrapInitHWLibs(void *that, void *param1) {
 
 // --- AMDSupport Hooks ---
 
-const char* DkzKext::wrapGetModelName(void *that) {
+const char* DkzKextController::wrapGetModelName(void *that) {
     auto &self = callback;
 
     if (self.gpuModel && self.chipFamily != ChipFamilyUnknown) {
@@ -669,7 +669,7 @@ const char* DkzKext::wrapGetModelName(void *that) {
     return origGetModelName(that);
 }
 
-uint32_t DkzKext::wrapGetDeviceId(void *that) {
+uint32_t DkzKextController::wrapGetDeviceId(void *that) {
     auto &self = callback;
 
     if (self.spoofEnabled && self.spoofDeviceId != 0) {
