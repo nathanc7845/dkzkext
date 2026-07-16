@@ -192,9 +192,9 @@ public:
                     } else {
                         DKZWARN("Failed to route optional symbol: %s", req.symbol);
                     }
+                } else {
+                    DKZDBG("Successfully routed: %s", req.symbol);
                 }
-            } else {
-                DKZDBG("Successfully routed: %s", req.symbol);
             }
         }
         return allRouted;

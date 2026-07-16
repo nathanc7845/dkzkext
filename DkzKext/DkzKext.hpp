@@ -183,21 +183,26 @@ private:
         KextAMDSupport      = 3,
     };
 
+    static const char *kextPathX6000[];
+    static const char *kextPathX6000FB[];
+    static const char *kextPathX6000HW[];
+    static const char *kextPathAMDSupport[];
+
     KernelPatcher::KextInfo kextList[kKextCount] = {
         {"com.apple.kext.AMDRadeonX6000",
-         {"/System/Library/Extensions/AMDRadeonX6000.kext/Contents/MacOS/AMDRadeonX6000"},
+         kextPathX6000, arrsize(kextPathX6000),
          {}, {}, KernelPatcher::KextInfo::Unloaded},
 
         {"com.apple.kext.AMDRadeonX6000Framebuffer",
-         {"/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext/Contents/MacOS/AMDRadeonX6000Framebuffer"},
+         kextPathX6000FB, arrsize(kextPathX6000FB),
          {}, {}, KernelPatcher::KextInfo::Unloaded},
 
         {"com.apple.kext.AMDRadeonX6000HWServices",
-         {"/System/Library/Extensions/AMDRadeonX6000HWServices.kext/Contents/MacOS/AMDRadeonX6000HWServices"},
+         kextPathX6000HW, arrsize(kextPathX6000HW),
          {}, {}, KernelPatcher::KextInfo::Unloaded},
 
         {"com.apple.AMDSupport",
-         {"/System/Library/Extensions/AMDSupport.kext/Contents/MacOS/AMDSupport"},
+         kextPathAMDSupport, arrsize(kextPathAMDSupport),
          {}, {}, KernelPatcher::KextInfo::Unloaded},
     };
 

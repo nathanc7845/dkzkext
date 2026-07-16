@@ -16,7 +16,20 @@
 // Static Singleton & Original Function Pointers
 // =============================================================================
 
-DkzKext DkzKextController::callback;
+DkzKextController DkzKextController::callback;
+
+const char *DkzKextController::kextPathX6000[] = {
+    "/System/Library/Extensions/AMDRadeonX6000.kext/Contents/MacOS/AMDRadeonX6000"
+};
+const char *DkzKextController::kextPathX6000FB[] = {
+    "/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext/Contents/MacOS/AMDRadeonX6000Framebuffer"
+};
+const char *DkzKextController::kextPathX6000HW[] = {
+    "/System/Library/Extensions/AMDRadeonX6000HWServices.kext/Contents/MacOS/AMDRadeonX6000HWServices"
+};
+const char *DkzKextController::kextPathAMDSupport[] = {
+    "/System/Library/Extensions/AMDSupport.kext/Contents/MacOS/AMDSupport"
+};
 
 // AMDRadeonX6000
 bool     (*DkzKextController::origAcceleratorStart)(void*, IOService*) = nullptr;
